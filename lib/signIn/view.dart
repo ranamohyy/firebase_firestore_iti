@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:student_system_iti/auth_cubit/auth_cubit.dart';
 
 import '../register/view.dart';
+import '../verify_screen.dart';
 
 class SignIn extends StatelessWidget {
   const SignIn({super.key});
@@ -52,13 +53,27 @@ class SignIn extends StatelessWidget {
                 ),
               );
             }
+            if (state is EmailNoVerified) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  backgroundColor: Colors.red,
+                  content:  Text("You should verify your email first"),
+                ),
+              );
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => BlocProvider.value(
+                    value: context.read<AuthCubit>(),
+                    child: const VerifyScreen(),
+                  ),
+                ),
+              );
+            }
           },
           builder: (context, state) {
+            final isLoading = state is LoginLoading;
             ///=======cubit================
             final cubit= context.read<AuthCubit>();
-            if(state is LoginLoading){
-              return Center(child: CircularProgressIndicator(),);
-            }
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -77,7 +92,7 @@ class SignIn extends StatelessWidget {
                     ),
                     SizedBox(height: 20),
                     TextFormField(
-                      controller: cubit.emailControl,
+                      controller: cubit.emailLoginControl,
                       decoration: InputDecoration(
                         fillColor: Color(0xffF3F3F3),
                         filled: true,
@@ -94,7 +109,7 @@ class SignIn extends StatelessWidget {
                     SizedBox(height: 20),
 
                     TextFormField(
-                      controller: cubit.passwordControl,
+                      controller: cubit.passwordLoginControl,
                       decoration: InputDecoration(
                         fillColor: Color(0xffF3F3F3),
                         filled: true,
@@ -124,7 +139,8 @@ class SignIn extends StatelessWidget {
 
                     ElevatedButton(
                       onPressed: () {
-                        cubit.signIn();
+                        cubit.login();
+
                         ///push replament ===> cannot bak
                         ///push ===> can back to screen
                         //
@@ -136,7 +152,15 @@ class SignIn extends StatelessWidget {
                         fixedSize: Size.fromHeight(50),
                         backgroundColor: Color(0xffFF5E00),
                       ),
-                      child: Text(
+                      child:
+                      isLoading?
+                          Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.orange,
+
+                            ),
+                          ):
+                      Text(
                         'Sign In',
                         style: TextStyle(
                           fontSize: 18,

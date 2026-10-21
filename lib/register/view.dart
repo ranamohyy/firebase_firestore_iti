@@ -32,28 +32,26 @@ class SignUp extends StatelessWidget {
         ),
         body: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
+            ///-------------handle success ------------------------
             if (state is RegisterSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   backgroundColor: Colors.green,
-                  content: const Text('Register Success '),
+                  content: Text("Account Created Success"),
                 ),
               );
             }
+
+            ///-------------handle failure ------------------------
             if (state is RegisterFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.red,
-                  content:  Text(state.msg),
-                ),
+                SnackBar(backgroundColor: Colors.red, content: Text(state.msg)),
               );
             }
           },
           builder: (context, state) {
-            final cubit = context.read<AuthCubit>();
-            if(state is RegisterLoading){
-              return Center(child: CircularProgressIndicator(),);
-            }
+            final cubit = BlocProvider.of<AuthCubit>(context);
+            final loading = state is RegisterLoading;
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -116,7 +114,12 @@ class SignUp extends StatelessWidget {
                         fixedSize: Size.fromHeight(50),
                         backgroundColor: Color(0xffFF5E00),
                       ),
-                      child: Text(
+                      child:
+                      loading?
+                      Center(
+                          child:
+                          CircularProgressIndicator()):
+                      Text(
                         'Sign Up',
                         style: TextStyle(
                           fontSize: 18,

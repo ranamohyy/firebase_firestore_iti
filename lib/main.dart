@@ -1,11 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:student_system_iti/register/view.dart';
 import 'package:student_system_iti/signIn/view.dart';
 
 import 'firebase_options.dart';
-import 'home/add_student_screen.dart';
-import 'home/home_view.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +23,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const HomeView(),
+      home: const SignIn(),
     );
   }
 }

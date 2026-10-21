@@ -19,3 +19,13 @@ final class AuthInitial extends AuthState {}
   final String msg;
   RegisterFailure(this.msg);
  }
+ ///-------------email verify----------------------
+class EmailNoVerified extends AuthState{}
+class EmailLoadingVerify extends AuthState{}
+class VerifySuccess extends AuthState{}
+class ResendVerifySuccess extends AuthState{}
+class VerifyFailure extends AuthState{
+ final String msg;
+ VerifyFailure(this.msg);
+
+}

@@ -6,57 +6,123 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
-  ///=============object from firebase=============================
+  ///==============instance from firebase ===================
   final fireAuth = FirebaseAuth.instance;
 
-  ///=================controllers======================
+  ///----------controllers register----------------------------------
   TextEditingController emailRegisterControl = TextEditingController();
   TextEditingController passwordRegisterControl = TextEditingController();
 
-  TextEditingController emailControl = TextEditingController();
-  TextEditingController passwordControl = TextEditingController();
+  ///----------controllers login----------------------------------
+  TextEditingController emailLoginControl = TextEditingController();
+  TextEditingController passwordLoginControl = TextEditingController();
 
-  ///==============signUp method======================
+  ///---------------sign up --------------
 
   Future<void> signUp() async {
     emit(RegisterLoading());
+
     try {
-      await fireAuth.createUserWithEmailAndPassword(
+      final credential = await fireAuth.createUserWithEmailAndPassword(
         email: emailRegisterControl.text,
         password: passwordRegisterControl.text,
       );
+
+      ///---------check if you have created an user------------------------
+      final user = credential.user;
+
+      if (user == null) {
+        emit(RegisterFailure("Unable to create account"));
+        return;
+      }
+
+      ///--------------------call send email verification method----------------------
+      await user.sendEmailVerification();
       emit(RegisterSuccess());
-    } on FirebaseAuthException catch (e) {
-      emit(RegisterFailure(e.toString()));
+    }
+    ///----------handle error----------------------------------------------
+    on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        emit(RegisterFailure('The password provided is too weak.'));
+      } else if (e.code == 'email-already-in-use') {
+        emit(RegisterFailure('The account already exists for that email.'));
+      }
     } catch (e) {
       emit(RegisterFailure(e.toString()));
     }
   }
 
-  ///==============signUp method======================
-
-  Future<void> signIn() async {
+  ///-------------signIn----------------
+  Future<void> login() async {
     emit(LoginLoading());
+
     try {
-      await fireAuth.signInWithEmailAndPassword(
-        email: emailControl.text,
-        password: passwordControl.text,
+      final loginData = await fireAuth.signInWithEmailAndPassword(
+        email: emailLoginControl.text,
+        password: passwordLoginControl.text,
       );
 
-      emit(LoginSuccess());
+      ///-------check  if there an user--------------------
+      final user = loginData.user;
+      if (user == null) {
+        emit(LoginFailure("Unable to login"));
+        return;
+      }
+      ///----------refresh-----------------------------------
+      await user.reload();
+      final updatedData = fireAuth.currentUser;
+
+      if (updatedData != null && updatedData.emailVerified) {
+        emit(LoginSuccess());
+      } else {
+        emit(EmailNoVerified());
+      }
     } on FirebaseAuthException catch (e) {
-      emit(LoginFailure(e.toString()));
+      if (e.code == 'user-not-found') {
+        emit(LoginFailure('No user found for that email.'));
+      } else if (e.code == 'wrong-password') {
+        emit(LoginFailure('Wrong password provided for that user.'));
+      } else if (e.code == 'invalid-credential') {
+        emit(LoginFailure('No user found'));
+      } else {
+        emit(LoginFailure("fire auth error"));
+      }
     } catch (e) {
       emit(LoginFailure(e.toString()));
     }
   }
+  ///------------------resend verfy mail-----------
 
-  @override
-  Future<void> close() {
-    emailRegisterControl.dispose();
-    passwordRegisterControl.dispose();
-    emailControl.dispose();
-    passwordControl.dispose();
-    return super.close();
+  Future<void> resendVerifyMail() async {
+    emit(EmailLoadingVerify());
+    try {
+      final user = fireAuth.currentUser;
+
+      if (user == null) {
+        emit(VerifyFailure("please sign in to continue "));
+        return;
+      }
+
+      ///----------refresh-----------------------------------
+      await user.reload();
+      final updatedData = fireAuth.currentUser;
+      if (updatedData == null) {
+        emit(VerifyFailure("please sign in to continue "));
+        return;
+      }
+      if (updatedData.emailVerified) {
+        emit(VerifySuccess());
+        return;
+      }
+
+      await updatedData.sendEmailVerification();
+      emit(ResendVerifySuccess());
+    } on FirebaseAuthException catch (e) {
+      emit(VerifyFailure(e.code));
+    } catch (e) {
+      emit(VerifyFailure(e.toString()));
+    }
   }
+
+
 }
