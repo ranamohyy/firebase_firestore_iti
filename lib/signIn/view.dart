@@ -37,43 +37,50 @@ class SignIn extends StatelessWidget {
         ),
         body: BlocConsumer<AuthCubit, AuthState>(
           listener: (context, state) {
+
+            ///------------success -----------------------------
             if (state is LoginSuccess) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.green,
-                  content: const Text('Login Success '),
-                ),
+                  SnackBar(
+                      backgroundColor: Colors.green,
+                      content: Text("Login Success"))
               );
             }
+
+            ///-----------------failure---------------------------
             if (state is LoginFailure) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.red,
-                  content:  Text(state.msg),
-                ),
+                  SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Text(state.msg))
               );
             }
-            if (state is EmailNoVerified) {
+
+            ///-------------email not verified -----------------
+            if (state is EmailNotVerified) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.red,
-                  content:  Text("You should verify your email first"),
-                ),
+                  SnackBar(
+                      backgroundColor: Colors.orange,
+                      content: Text(
+                          "Your Email is not verified yet please verify your mail"))
               );
+              Duration(seconds: 3);
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => BlocProvider.value(
-                    value: context.read<AuthCubit>(),
-                    child: const VerifyScreen(),
-                  ),
-                ),
+                  MaterialPageRoute(builder:
+                      (_) =>
+                      BlocProvider.value(
+                        value: context.read<AuthCubit>(),
+                        child: VerifyScreen(),
+                      ),)
               );
             }
           },
           builder: (context, state) {
+            ///--------------------loading state --------------------------
             final isLoading = state is LoginLoading;
-            ///=======cubit================
-            final cubit= context.read<AuthCubit>();
+            final cubit = BlocProvider.of<AuthCubit>(context);
+
+
             return SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(12.0),
@@ -153,13 +160,12 @@ class SignIn extends StatelessWidget {
                         backgroundColor: Color(0xffFF5E00),
                       ),
                       child:
-                      isLoading?
-                          Center(
-                            child: CircularProgressIndicator(
-                              color: Colors.orange,
 
-                            ),
-                          ):
+                      isLoading ?
+                      Center(child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),)
+                          :
                       Text(
                         'Sign In',
                         style: TextStyle(
@@ -205,6 +211,8 @@ class SignIn extends StatelessWidget {
                   ],
                 ),
               ),
+
+
             );
           },
         ),

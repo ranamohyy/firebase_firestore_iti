@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:student_system_iti/home/controller/home_cubit.dart';
-import 'package:student_system_iti/home/home_view.dart';
 
 class AddStudentScreen extends StatelessWidget {
   const AddStudentScreen({super.key});
@@ -126,11 +125,11 @@ class AddStudentScreen extends StatelessWidget {
 
                     ElevatedButton(
                       onPressed: () {
-                        cubit.addStudentToServer();
-                        Future.delayed(Duration(seconds: 3));
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (context) => HomeView()),
-                        );
+                        cubit.addStudentsToServer();
+                        // Future.delayed(Duration(seconds: 3));
+                        // Navigator.of(context).push(
+                        //   MaterialPageRoute(builder: (context) => HomeView()),
+                        // );
                       },
                       style: ElevatedButton.styleFrom(
                         fixedSize: Size.fromHeight(50),

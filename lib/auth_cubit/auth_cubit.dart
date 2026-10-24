@@ -6,123 +6,147 @@ part 'auth_state.dart';
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit() : super(AuthInitial());
 
-  ///==============instance from firebase ===================
+  ///-------------------instance from firebase--------------------
   final fireAuth = FirebaseAuth.instance;
 
-  ///----------controllers register----------------------------------
+  ///-----------------controllers-------------------------------
   TextEditingController emailRegisterControl = TextEditingController();
   TextEditingController passwordRegisterControl = TextEditingController();
 
-  ///----------controllers login----------------------------------
+  ///-----------------------------------------------------------
   TextEditingController emailLoginControl = TextEditingController();
   TextEditingController passwordLoginControl = TextEditingController();
 
-  ///---------------sign up --------------
+  ///-------------signup --> verify --> login
+  ///-------------verify ,, create --> success
+  ///------------- not verified --> screen verify account
 
+  ///----------------sign up ---------------------------
   Future<void> signUp() async {
     emit(RegisterLoading());
 
     try {
-      final credential = await fireAuth.createUserWithEmailAndPassword(
+      ///----------------request----------------
+    final data=  await fireAuth.createUserWithEmailAndPassword(
         email: emailRegisterControl.text,
         password: passwordRegisterControl.text,
       );
 
-      ///---------check if you have created an user------------------------
-      final user = credential.user;
 
-      if (user == null) {
-        emit(RegisterFailure("Unable to create account"));
-        return;
-      }
+    ///--------check------------
+    final user = data.user;
+    if(user == null){
+      emit(RegisterFailure("UNABLE TO CREATE AN ACCOUT"));
+     return;
+    }
+    ///---------------------call method to send verification------------
+   await user.sendEmailVerification();
 
-      ///--------------------call send email verification method----------------------
-      await user.sendEmailVerification();
+
       emit(RegisterSuccess());
     }
-    ///----------handle error----------------------------------------------
+    ///---------------handle error-------------------------
     on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         emit(RegisterFailure('The password provided is too weak.'));
       } else if (e.code == 'email-already-in-use') {
         emit(RegisterFailure('The account already exists for that email.'));
+      } else {
+        emit(RegisterFailure("fireAuth exp"));
       }
     } catch (e) {
       emit(RegisterFailure(e.toString()));
     }
   }
 
-  ///-------------signIn----------------
+  ///--------------login----------------------
   Future<void> login() async {
     emit(LoginLoading());
-
     try {
-      final loginData = await fireAuth.signInWithEmailAndPassword(
+      ///--------------------request-------------------------------------
+    final data =  await fireAuth.signInWithEmailAndPassword(
         email: emailLoginControl.text,
         password: passwordLoginControl.text,
       );
 
-      ///-------check  if there an user--------------------
-      final user = loginData.user;
-      if (user == null) {
-        emit(LoginFailure("Unable to login"));
-        return;
-      }
-      ///----------refresh-----------------------------------
-      await user.reload();
-      final updatedData = fireAuth.currentUser;
+    ///--------------check if there is an user ------------------------
+    final user= data.user;
+    if(user==null){
+      emit(LoginFailure("Unable to login"));
+      return;
+    }
+    ///------------------refresh ---------------------------
+    await user.reload();
+    ///--------get user from server ------------------------
+    final updatedUser = fireAuth.currentUser;
+    ///---------check if there is an user  and email is verified ------------
+    if(updatedUser!=null && updatedUser.emailVerified){
+      emit(LoginSuccess());
 
-      if (updatedData != null && updatedData.emailVerified) {
-        emit(LoginSuccess());
-      } else {
-        emit(EmailNoVerified());
-      }
-    } on FirebaseAuthException catch (e) {
+    }else{
+      emit(EmailNotVerified());
+    }
+
+
+    }
+    // /--------handle errors---------------------------
+    on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         emit(LoginFailure('No user found for that email.'));
       } else if (e.code == 'wrong-password') {
         emit(LoginFailure('Wrong password provided for that user.'));
-      } else if (e.code == 'invalid-credential') {
-        emit(LoginFailure('No user found'));
-      } else {
-        emit(LoginFailure("fire auth error"));
+      }else if (e.code =="invalid-credential"){
+        emit(LoginFailure("password or mail is incorrect"));
+      }else{
+        emit(LoginFailure("fire auth exception"));
       }
-    } catch (e) {
-      emit(LoginFailure(e.toString()));
+    } catch (E) {
+      emit(LoginFailure(E.toString()));
     }
   }
-  ///------------------resend verfy mail-----------
 
-  Future<void> resendVerifyMail() async {
-    emit(EmailLoadingVerify());
-    try {
+
+  ///-----------resend mail verification ------------------------
+
+Future<void>resendMailVerification()async{
+    emit(VerifyLoading());
+    try{
+
       final user = fireAuth.currentUser;
-
-      if (user == null) {
-        emit(VerifyFailure("please sign in to continue "));
+      if(user ==null){
+        emit(VerifyFailure("Please sign in to continue"));
         return;
       }
-
-      ///----------refresh-----------------------------------
+///--------------------------------------------------------------
       await user.reload();
-      final updatedData = fireAuth.currentUser;
-      if (updatedData == null) {
-        emit(VerifyFailure("please sign in to continue "));
+      final updatedUser = fireAuth.currentUser;
+      if(updatedUser ==null){
+        emit(VerifyFailure("no login data found"));
         return;
       }
-      if (updatedData.emailVerified) {
+      if(updatedUser.emailVerified){
         emit(VerifySuccess());
         return;
       }
 
-      await updatedData.sendEmailVerification();
+
+      ///-----------send mail verification-----------
+      await updatedUser.sendEmailVerification();
       emit(ResendVerifySuccess());
-    } on FirebaseAuthException catch (e) {
+
+    }
+    ///--------handle errors--------------------
+    on FirebaseAuthException catch(e){
       emit(VerifyFailure(e.code));
-    } catch (e) {
+    }
+    catch(e){
       emit(VerifyFailure(e.toString()));
     }
-  }
+
+
+}
+
+
 
 
 }

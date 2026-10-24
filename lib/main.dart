@@ -1,8 +1,17 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:student_system_iti/signIn/view.dart';
+import 'package:student_system_iti/home/home_view.dart';
 
 import 'firebase_options.dart';
+
+
+///--------enable services on firebase  ---------
+///--------model data ---------
+///---------flutter_bloc ,
+///--------cubit ,, states -----------
+///------initial , loading , success ,failure-----------
+///---------------provider----------------
+
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +32,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const SignIn(),
+      home: const HomeView()
     );
   }
 }

@@ -8,133 +8,140 @@ class SignUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => AuthCubit(),
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          centerTitle: true,
-          title: Text(
-            'Sign Up',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w400,
-              color: Color(0xffFF5E00),
-            ),
-          ),
-          leading: GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.arrow_back_ios_new_outlined,
-              color: Color(0xffFF5E00),
-            ),
-          ),
-        ),
-        body: BlocConsumer<AuthCubit, AuthState>(
-          listener: (context, state) {
-            ///-------------handle success ------------------------
-            if (state is RegisterSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  backgroundColor: Colors.green,
-                  content: Text("Account Created Success"),
-                ),
-              );
-            }
-
-            ///-------------handle failure ------------------------
-            if (state is RegisterFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(backgroundColor: Colors.red, content: Text(state.msg)),
-              );
-            }
-          },
-          builder: (context, state) {
-            final cubit = BlocProvider.of<AuthCubit>(context);
-            final loading = state is RegisterLoading;
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Image.asset('assets/images/auth.png'),
-
-                    Text(
-                      'Enter Your Email And\nPassword to create your account',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xff6D3805),
-                      ),
-                    ),
-                    SizedBox(height: 20),
-                    TextFormField(
-                      controller: cubit.emailRegisterControl,
-                      decoration: InputDecoration(
-                        fillColor: Color(0xffF3F3F3),
-                        filled: true,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffFF5E00)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffF3F3F3)),
-                        ),
-                        hintText: 'Email',
-                      ),
-                    ),
-
-                    SizedBox(height: 20),
-
-                    TextFormField(
-                      controller: cubit.passwordRegisterControl,
-                      decoration: InputDecoration(
-                        fillColor: Color(0xffF3F3F3),
-                        filled: true,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffFF5E00)),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xffF3F3F3)),
-                        ),
-                        hintText: 'Password',
-                      ),
-                    ),
-                    SizedBox(height: 20),
-
-                    SizedBox(height: 20),
-
-                    SizedBox(height: 20),
-
-                    ElevatedButton(
-                      onPressed: () {
-                        cubit.signUp();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        fixedSize: Size.fromHeight(50),
-                        backgroundColor: Color(0xffFF5E00),
-                      ),
-                      child:
-                      loading?
-                      Center(
-                          child:
-                          CircularProgressIndicator()):
-                      Text(
-                        'Sign Up',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
+        create: (context) => AuthCubit(),
+        child: Scaffold(
+            backgroundColor: Colors.white,
+            appBar: AppBar(
+              backgroundColor: Colors.white,
+              centerTitle: true,
+              title: Text(
+                'Sign Up',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xffFF5E00),
                 ),
               ),
-            );
-          },
-        ),
-      ),
-    );
+              leading: GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: Icon(
+                  Icons.arrow_back_ios_new_outlined,
+                  color: Color(0xffFF5E00),
+                ),
+              ),
+            ),
+            body:
+            BlocConsumer<AuthCubit, AuthState>(
+              listener: (context, state) {
+///--------------success ----------------------------
+                if(state is RegisterSuccess){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                        backgroundColor: Colors.green,
+                        content: Text("Login Success"))
+                  );
+                }
+                ///----------------failure----------------------------
+                if(state is RegisterFailure){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                          backgroundColor: Colors.red,
+                          content: Text(state.msg))
+                  );
+                }
+              },
+              builder: (context, state) {
+                ///---------store loading state----------------------------
+                final loadingState = state is RegisterLoading;
+
+                final cubit = BlocProvider.of<AuthCubit>(context);
+
+                return SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Image.asset('assets/images/auth.png'),
+
+                        Text(
+                          'Enter Your Email And\nPassword to create your account',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xff6D3805),
+                          ),
+                        ),
+                        SizedBox(height: 20),
+                        TextFormField(
+                          controller: cubit.emailRegisterControl,
+                          decoration: InputDecoration(
+                            fillColor: Color(0xffF3F3F3),
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xffFF5E00)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xffF3F3F3)),
+                            ),
+                            hintText: 'Email',
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        TextFormField(
+                          controller: cubit.passwordRegisterControl,
+                          decoration: InputDecoration(
+                            fillColor: Color(0xffF3F3F3),
+                            filled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xffFF5E00)),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xffF3F3F3)),
+                            ),
+                            hintText: 'Password',
+                          ),
+                        ),
+                        SizedBox(height: 20),
+
+                        SizedBox(height: 20),
+
+                        SizedBox(height: 20),
+
+                        ElevatedButton(
+                          onPressed: () {
+
+                            cubit.signUp();
+
+
+                          },
+                          style: ElevatedButton.styleFrom(
+                            fixedSize: Size.fromHeight(50),
+                            backgroundColor: Color(0xffFF5E00),
+                          ),
+                          child:
+                          loadingState?
+                          Center(child: CircularProgressIndicator(
+                            color: Colors.white,
+                          ),)
+                              :
+                          Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            )
+        ));
   }
 }
