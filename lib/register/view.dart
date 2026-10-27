@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:student_system_iti/auth_cubit/auth_cubit.dart';
+import 'package:student_system_iti/signIn/view.dart';
 
 class SignUp extends StatelessWidget {
   const SignUp({super.key});
@@ -39,6 +40,9 @@ class SignUp extends StatelessWidget {
                     SnackBar(
                         backgroundColor: Colors.green,
                         content: Text("Login Success"))
+                  );
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => SignIn(),)
                   );
                 }
                 ///----------------failure----------------------------

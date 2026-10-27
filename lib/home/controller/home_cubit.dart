@@ -9,81 +9,84 @@ class HomeCubit extends Cubit<HomeState> {
   ///===========object=========================
   final cloud = FirebaseFirestore.instance;
 
-  ///===================doc name =========================
-  final String docName = 'students';
+  ///===================collection name =========================
+  final String collectionName = 'students';
 
   ///==================controllers============================
+
   final nameControl = TextEditingController();
   final ageControl = TextEditingController();
   final gradeControl = TextEditingController();
 
   ///=============add students ==========================
-  Future<void> addStudentsToServer() async {
-    emit(HomeLoading());
 
+  Future<void> addStudentToServer() async {
+    emit(HomeLoading());
     try {
-      await cloud.collection(docName).add({
-        "name": nameControl.text.trim(),
-        "age": ageControl.text.trim(),
-        "grade": gradeControl.text.trim(),
+      await cloud.collection(collectionName).add({
+        'name': nameControl.text,
+        'age': ageControl.text,
+        'grade': gradeControl.text,
       });
 
-      ///-----------------------------------
       emit(AddStudentSuccess());
     }
-    ///-------------------------handle errors---------------
+    ///----------handle errors--------------
     catch (E) {
       emit(HomeFailure(E.toString()));
     }
   }
 
   ///===============get students from server===============================
+
   Future<void> getStudentsFromServer() async {
     emit(HomeLoading());
     try {
-      final response = await cloud.collection(docName).get();
-      emit(GetStudentsSuccess(response.docs));
+      final response = await cloud.collection(collectionName).get();
+      emit(GetStudentSuccess(response.docs));
     }
-    ///---------------handle errors-------------------------------
+    ///-------handle errors--------------
+    catch (e) {
+      emit(HomeFailure(e.toString()));
+    }
+  }
+
+  ///===========delete=====================================
+  Future<void> deleteStudents(String id) async {
+    try {
+      await cloud.collection(collectionName).doc(id).delete();
+      emit(DeleteStudentSuccess());
+    }
+    ///------------handle error--------------------
+    catch (e) {
+      emit(HomeFailure(e.toString()));
+    }
+  }
+
+  ///===================update==================================
+
+  Future<void> updateStudent(String id) async {
+    try {
+      await cloud.collection(collectionName).doc(id).update({
+        'name': nameControl.text,
+        'age': ageControl.text,
+        'grade': gradeControl.text,
+      });
+      emit(UpdateStudentSuccess());
+    }
+    ///-------handle errors---------------
     catch (E) {
       emit(HomeFailure(E.toString()));
     }
   }
 
-  ///===========delete=====================================
-
-  Future<void> deleteStudent(String id) async {
-    emit(HomeLoading());
-    try {
-      await cloud.collection(docName).doc(id).delete();
-      emit(DeleteStudentSuccess());
-    } catch (E) {
-      emit(HomeFailure(E.toString()));
-    }
-  }
-
-  ///===================update==================================
-  Future<void> updateStudent(String id) async {
-    emit(HomeLoading());
-    try {
-      await cloud.collection(docName).doc(id).update({
-        'name': nameControl.text.trim(),
-        'age': ageControl.text.trim(),
-        'grade': gradeControl.text.trim(),
-      });
-      emit(UpdateStudentSuccess());
-    } catch (E) {
-      emit(HomeFailure(E.toString()));
-    }
-  }
-
   ///==============================close==============
+
   @override
   Future<void> close() {
     nameControl.dispose();
     ageControl.dispose();
     gradeControl.dispose();
-
     return super.close();
   }
 }

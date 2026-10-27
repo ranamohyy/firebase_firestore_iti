@@ -6,30 +6,42 @@ Future<bool?> showEditDialog({
   required HomeCubit cubit,
   required String id,
   required Map<String, dynamic> student,
-}) {
+})
+
+{
   return showDialog<bool>(
     context: context,
     builder: (dialogContext) {
-      cubit.nameControl.text = student['name'].toString();
-      cubit.ageControl.text = student['age'].toString();
-      cubit.gradeControl.text = student['grade'].toString();
+      cubit.nameControl.text = student['name'];
+      cubit.ageControl.text = student['age'];
+      cubit.gradeControl.text = student['grade'];
 
       return AlertDialog(
         title: Text("Edit Student"),
         content: SingleChildScrollView(
           child: Column(
+            spacing: 12,
             children: [
               TextField(
                 controller: cubit.nameControl,
-                decoration: InputDecoration(hintText: 'NAME'),
-              ),
-              TextField(
-                controller: cubit.ageControl,
-                decoration: InputDecoration(hintText: 'age'),
+                decoration: InputDecoration(
+                  hintText: 'Name',
+                  border: OutlineInputBorder(),
+                ),
               ),
               TextField(
                 controller: cubit.gradeControl,
-                decoration: InputDecoration(hintText: 'grade'),
+                decoration: InputDecoration(
+                  hintText: 'Grade',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              TextField(
+                controller: cubit.ageControl,
+                decoration: InputDecoration(
+                  hintText: 'Age',
+                  border: OutlineInputBorder(),
+                ),
               ),
             ],
           ),
@@ -39,28 +51,36 @@ Future<bool?> showEditDialog({
             onPressed: () {
               Navigator.pop(dialogContext, false);
             },
-            child: Text("cancel"),
+            child: Text("Cancel"),
           ),
+
           ElevatedButton(
             onPressed: () async {
-              ///-----------check on fields------------------------------------
+              ///----------validation------------------------
               if (cubit.nameControl.text.trim().isEmpty ||
-                  cubit.ageControl.text.trim().isEmpty ||
-                  cubit.gradeControl.text.trim().isEmpty) {
-                ScaffoldMessenger.of(
-                  dialogContext,
-                ).showSnackBar(SnackBar(content: Text("Please fill data")));
+                  cubit.gradeControl.text.trim().isEmpty ||
+                  cubit.ageControl.text.trim().isEmpty) {
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text("Please fill the fields"),
+                  ),
+                );
                 return;
               }
+
+              ///-------------------------------------------------
               await cubit.updateStudent(id);
 
-              ///-------------------check on state-------------------------------------
+              ///------------check on state---------------------------------
+
               if (!dialogContext.mounted) return;
               if (cubit.state is UpdateStudentSuccess) {
                 Navigator.pop(dialogContext, true);
               }
             },
-            child: Text('save'),
+
+            child: Text("Save"),
           ),
         ],
       );

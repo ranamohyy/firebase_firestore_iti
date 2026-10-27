@@ -15,17 +15,16 @@ final class HomeFailure extends HomeState {
 ///----------------------get------------------------------------
 ///-------------------delete-------------------------------------
 
-///-------------get success---------------------------
-class GetStudentsSuccess extends HomeState{
+///==============get success====================
+class GetStudentSuccess extends HomeState{
  final List<QueryDocumentSnapshot<Map<String,dynamic>>>students;
- GetStudentsSuccess(this.students);
+ GetStudentSuccess(this.students);
 }
-///---------------------add success-----------------------------
+///--------------add success ---------------------------
 class AddStudentSuccess extends HomeState{}
 
-
-///===================update success==========================
+///--------------edit success ---------------------------
 class UpdateStudentSuccess extends HomeState{}
 
-///======================delete success=============================
+///--------------delete success ---------------------------
 class DeleteStudentSuccess extends HomeState{}
