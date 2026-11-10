@@ -75,6 +75,7 @@ Future<bool?> showEditDialog({
               ///------------check on state---------------------------------
 
               if (!dialogContext.mounted) return;
+
               if (cubit.state is UpdateStudentSuccess) {
                 Navigator.pop(dialogContext, true);
               }

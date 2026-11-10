@@ -12,10 +12,10 @@ Future<bool?> showDeleteStudentDialog({
       return AlertDialog(
         title: Text("Delete Student"),
 
-        ///----------------------------------------------
-        content: Text("Are you sure you want to delete this student?"),
+        ///-----------------------------------
+        content: Text("Are you sure you want to delete student?"),
 
-        ///----------------------------------------------
+        ///-----------------------------------------
         actions: [
           TextButton(
             onPressed: () {
@@ -25,18 +25,21 @@ Future<bool?> showDeleteStudentDialog({
           ),
 
           ElevatedButton(
+            style:ElevatedButton.styleFrom(
+              backgroundColor: Colors.red
+            ) ,
             onPressed: () async {
               await cubit.deleteStudents(id);
 
-              ///===========================================
               if (!dialogContext.mounted) return;
 
-              ///----------------check on state-----------------
+              ///---------------check on state-------------------------------------
+
               if (cubit.state is DeleteStudentSuccess) {
                 Navigator.pop(dialogContext, true);
               }
             },
-            child: Text("Delete"),
+            child: Text("Delete",style: TextStyle(color: Colors.white),),
           ),
         ],
       );
