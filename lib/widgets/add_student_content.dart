@@ -8,14 +8,18 @@ class AddStudentContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
+
+      ///-------------------------------------------------------------------------
       appBar: AppBar(
         backgroundColor: Colors.orange,
-        title: Text("Add your data "),
+        title: Text("Add Your Data"),
       ),
 
-      ///-----------------------------------------
+      ///--------------------------------------------------------------------------
       body: BlocConsumer<HomeCubit, HomeState>(
         listener: (context, state) {
+          ///----------handle fail state---------------------------
           if (state is HomeFailure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(backgroundColor: Colors.red, content: Text(state.msg)),
@@ -24,78 +28,92 @@ class AddStudentContent extends StatelessWidget {
         },
         builder: (context, state) {
           final cubit = BlocProvider.of<HomeCubit>(context);
-
-          ///---------------handle loading========================
+          ///---------handle loading state-------------------------------
           if (state is HomeLoading) {
-            return Center(
-              child: CircularProgressIndicator(color: Colors.orange),
-            );
+            return Center(child: CircularProgressIndicator());
           }
-
-          ///---------------------------------------------------------
+          ///-----------------------------------------------------------
           return SingleChildScrollView(
             padding: EdgeInsets.all(12),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 20,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                ///---------name field---------------------------------
                 TextField(
                   controller: cubit.nameControl,
                   decoration: InputDecoration(
-                    hintText: 'Name',
-                    border: OutlineInputBorder(),
+                    hintText: "Enter Your Name",
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
                   ),
                 ),
-
-                ///=======================age field--------------------
                 TextField(
                   controller: cubit.ageControl,
                   decoration: InputDecoration(
-                    hintText: 'Age',
-                    border: OutlineInputBorder(),
+                    hintText: 'Enter Your Age',
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
                   ),
                 ),
-
-                ///-------grade field======================
                 TextField(
                   controller: cubit.gradeControl,
-                  decoration: InputDecoration(
-                    hintText: 'Grade',
-                    border: OutlineInputBorder(),
+                  decoration:
+                  InputDecoration(
+                    hintText: "Enter Your Grade",
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                    ),
                   ),
                 ),
 
                 ElevatedButton(
-                  onPressed: () async {
-                    ///-------------------validate on fields---------------------------------
+                  onPressed: () async{
+                    ///-----------------validation on fields------------
+
                     if (cubit.nameControl.text.trim().isEmpty ||
-                        cubit.ageControl.text.trim().isEmpty ||
-                        cubit.gradeControl.text.trim().isEmpty) {
+                        cubit.gradeControl.text.trim().isEmpty ||
+                        cubit.ageControl.text.trim().isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           backgroundColor: Colors.red,
-                          content: Text("please fill fields"),
+                          content: Text("Please fill the fields"),
                         ),
                       );
                       return;
                     }
 
-                    ///---------------------------cubit method-------------------
+             ///-----------------------------------------------------------------
                     await cubit.addStudentToServer();
 
-                    ///-------------------check on state--------------------------------
-                    if (!context.mounted) return;
-                    if (cubit.state is AddStudentSuccess) {
-                      Navigator.pop(context, true);
+                    ///-------------------------------------------------
+                    if(!context.mounted)return;
+                    ///--------------------------
+                    if(cubit.state is AddStudentSuccess){
+                      Navigator.pop(context,true);
                     }
                   },
                   style: ElevatedButton.styleFrom(
+                    fixedSize: Size.fromHeight(50),
                     backgroundColor: Colors.orange,
                   ),
                   child: Text(
-                    "Add Student",
-                    style: TextStyle(color: Colors.white),
+                    "Save",
+                    style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
                 ),
               ],
